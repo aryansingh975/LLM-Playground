@@ -1,3 +1,10 @@
+# LLM Playground
+
+**Live demo:** https://llm-playground-two.vercel.app
+*(No API keys are configured on the deployed instance — the UI is fully browsable, but sending a
+chat message will show the existing "No API key found" error. Clone the repo and add your own free
+keys to `.env.local` to try it with a working AI backend — see `specs/spec-S2.1-get-api-keys/`.)*
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
