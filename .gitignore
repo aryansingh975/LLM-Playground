@@ -21,6 +21,7 @@ llm-playground/
 # Env files
 .env
 .env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
