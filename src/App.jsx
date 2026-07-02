@@ -8,14 +8,18 @@ import EvaluatePage from './EvaluatePage'
 function App() {
   return (
     <BrowserRouter>
-      <NavBar />
-      <Routes>
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/learn" element={<LearnPage />} />
-        <Route path="/compare" element={<ComparePage />} />
-        <Route path="/evaluate" element={<EvaluatePage />} />
-        <Route path="*" element={<Navigate to="/chat" replace />} />
-      </Routes>
+      <div className="flex flex-col h-screen overflow-hidden">
+        <NavBar />
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <Routes>
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/evaluate" element={<EvaluatePage />} />
+            <Route path="*" element={<Navigate to="/chat" replace />} />
+          </Routes>
+        </div>
+      </div>
     </BrowserRouter>
   )
 }

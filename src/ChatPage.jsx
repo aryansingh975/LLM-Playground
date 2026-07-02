@@ -33,7 +33,7 @@ function ChatPage() {
   }
 
   return (
-    <main className="flex flex-row min-h-screen">
+    <main className="flex flex-row h-full overflow-hidden">
       <Sidebar>
         <TemperatureSlider value={temperature} onChange={setTemperature} />
         <TopPSlider value={topP} onChange={setTopP} />
@@ -41,8 +41,8 @@ function ChatPage() {
         <ProviderPicker value={provider} onChange={setProvider} />
       </Sidebar>
       {/* Chat column */}
-      <div className="flex-1 flex flex-col p-8 max-w-2xl">
-        <div id="response-area" className="mt-4 min-h-8">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-8">
+        <div id="response-area" className="flex-1 mt-4 min-h-0 overflow-hidden">
           <MessageThread messages={messages} loading={loading} />
         </div>
         <div id="error-area" className="mt-2">

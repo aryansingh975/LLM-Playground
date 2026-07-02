@@ -16,7 +16,7 @@ export default function MessageThread({ messages = [], loading = false }) {
 
   if (messages.length === 0 && !loading) {
     return (
-      <div ref={containerRef} className="flex flex-col gap-2 overflow-y-auto max-h-[60vh]">
+      <div ref={containerRef} className="flex flex-col gap-2 overflow-y-auto h-full">
         <div data-testid="empty-chat-state" className="m-auto text-center text-gray-400 italic px-3 py-8">
           Start the conversation — type a message below.
         </div>
@@ -25,7 +25,7 @@ export default function MessageThread({ messages = [], loading = false }) {
   }
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-2 overflow-y-auto max-h-[60vh]">
+    <div ref={containerRef} className="flex flex-col gap-2 overflow-y-auto h-full">
       {messages.map((msg, i) => (
         <div key={i} className={msg.role === 'user' ? USER_CLASSES : ASSISTANT_CLASSES}>
           {msg.text}
