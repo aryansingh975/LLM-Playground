@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { getTimeGreeting } from './greeting'
 
 const USER_CLASSES =
   'ml-auto max-w-[75%] rounded-lg px-3 py-2 bg-blue-500 text-white text-right break-words'
@@ -17,8 +18,9 @@ export default function MessageThread({ messages = [], loading = false }) {
   if (messages.length === 0 && !loading) {
     return (
       <div ref={containerRef} className="flex flex-col gap-2 overflow-y-auto h-full">
-        <div data-testid="empty-chat-state" className="m-auto text-center text-gray-400 italic px-3 py-8">
-          Start the conversation — type a message below.
+        <div data-testid="empty-chat-state" className="m-auto text-center px-3 py-8">
+          <h1 className="text-3xl font-serif text-gray-700 mb-2">{getTimeGreeting()}</h1>
+          <p className="text-gray-400 italic">Start the conversation — type a message below.</p>
         </div>
       </div>
     )
