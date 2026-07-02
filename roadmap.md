@@ -242,7 +242,7 @@ This stops you from building on a shaky foundation.
 | Spec | Spec Location | Depends On | What You'll Do | Status |
 |------|--------------|-----------|----------------|--------|
 | S10.1 | `specs/spec-S10.1-prod-build/` | S9.1, S9.2, S9.3 | Run `npm run build`. Understand what a "production build" is | done |
-| S10.2 | `specs/spec-S10.2-vercel-deploy/` | S10.1 | Deploy to Vercel (free). Get a public URL. Share it | spec-written |
+| S10.2 | `specs/spec-S10.2-vercel-deploy/` | S10.1 | Deploy to Vercel (free). Get a public URL. Share it | done |
 
 ---
 
@@ -253,9 +253,9 @@ This stops you from building on a shaky foundation.
 
 | Spec | Spec Location | Depends On | What You'll Do | Status |
 |------|--------------|-----------|----------------|--------|
-| S11.1 | `specs/spec-S11.1-readme/` | S10.2 | Write README: what the project does, how to run it, how to get free API keys | pending |
-| S11.2 | `specs/spec-S11.2-architecture/` | S10.2 | Draw a simple diagram of how data flows: user → browser → AI API → back | pending |
-| S11.3 | `specs/spec-S11.3-acceptance/` | S11.1 | Final checklist: does everything work? Is every spec done? | pending |
+| S11.1 | `specs/spec-S11.1-readme/` | S10.2 | Write README: what the project does, how to run it, how to get free API keys | done |
+| S11.2 | `specs/spec-S11.2-architecture/` | S10.2 | Draw a simple diagram of how data flows: user → browser → AI API → back | done |
+| S11.3 | `specs/spec-S11.3-acceptance/` | S11.1 | Final checklist: does everything work? Is every spec done? | done |
 
 ---
 
@@ -298,7 +298,7 @@ This stops you from building on a shaky foundation.
 | S9.2 | Polish | Mobile layout | done |
 | S9.3 | Polish | Empty + error states | done |
 | S10.1 | Deploy | Production build | done |
-| S10.2 | Deploy | Vercel deploy | spec-written |
-| S11.1 | Docs | README | pending |
-| S11.2 | Docs | Architecture diagram | pending |
-| S11.3 | Docs | Final acceptance checklist | pending |
+| S10.2 | Deploy | Vercel deploy | done |
+| S11.1 | Docs | README | done |
+| S11.2 | Docs | Architecture diagram | done |
+| S11.3 | Docs | Final acceptance checklist | done |
