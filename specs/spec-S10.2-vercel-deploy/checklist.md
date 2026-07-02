@@ -2,8 +2,8 @@
 
 ## Phase 1: Setup & Dependencies
 - [x] Verify S10.1 (production build) is `done`
-- [ ] **MANUAL** Confirm a Vercel account can be created for free (GitHub sign-in, no credit card)
-      — requires the user's own GitHub login; not something this environment can do
+- [x] Confirm a Vercel account can be created for free (GitHub sign-in, no credit card) — done by
+      user, team `aryan-singh976` created on the Hobby (free) plan
 - [x] No new npm dependencies needed (`vercel.json` is plain static config)
 
 ## Phase 2: Tests First (TDD)
@@ -15,30 +15,34 @@
 ## Phase 3: Implementation
 - [x] Implement FR-1 — created `vercel.json` with a catch-all rewrite to `/index.html`
 - [x] Run tests — pass (Green) — 2/2 in `vercelConfig.test.js`
-- [ ] **MANUAL** Implement FR-2 — sign in to vercel.com with GitHub, import this repo as a project
-- [ ] **MANUAL** Implement FR-2 — decide: set real `VITE_*` keys in Vercel's Environment Variables,
-      or deliberately leave them unset (understand either way that any key set there is inlined into
-      the public bundle, per S10.1 FR-2)
-- [ ] **MANUAL** Implement FR-3 — trigger first deployment, confirm green checkmark in Vercel
-      dashboard
+- [x] Implement FR-2 — deliberately left `VITE_*` env vars unset on the Vercel project (documented
+      choice: this is a public, shareable portfolio URL — keeping keys off it avoids exposing a
+      personal free-tier key, at the cost of the live demo not returning real AI replies; S2.3's "No
+      API key found" error surfaces instead, same as running locally without `.env.local`)
+- [x] Implement FR-3 — repo imported (`aryansingh975/LLM-Playground`, `main`), first deployment
+      succeeded (commit `66bc595`, green/Ready in the Vercel dashboard)
 
 ## Phase 4: Integration
-- [ ] **MANUAL** Open the live URL directly (not via in-app navigation) at `/`, `/learn`,
-      `/compare`, `/evaluate` — confirm all four load correctly (proves FR-1's rewrite works live)
-- [ ] **MANUAL** Push a trivial commit to `main`, confirm Vercel dashboard shows a new auto-triggered
-      deployment
+- [x] Opened the live URL directly (not via in-app navigation) at `/`, `/learn`, `/compare`,
+      `/evaluate` — all four loaded correctly (confirmed via screenshots: Chat, Learn panels,
+      Compare two-column layout, Evaluate ratings + benchmark chart) — proves FR-1's rewrite works
+      live, not just locally
+- [x] Pushed a follow-up commit (`7fd9adb` — README live-URL update) to `main`; Vercel dashboard
+      showed a new auto-triggered deployment (Ready/Production, 48s after push) — confirms FR-4's
+      auto-redeploy behavior
 - [x] Run lint: `npm run lint` — clean (only the pre-existing unrelated `BenchmarkChart.jsx` warning)
-- [x] Run full test suite: `npm run test` — 231/231 passed (27 test files, up from 229/26 before
-      this spec)
+- [x] Run full test suite: `npm run test` — all passing, no regressions from `vercel.json` or the
+      README change
 
 ## Phase 5: Verification
-- [x] Outcome 1 verified (`vercel.json` valid, has catch-all rewrite) — automated
-- [ ] **MANUAL** Outcomes 2–5 unverified — require an actual Vercel account, dashboard access, and a
-      live deployment, none of which this environment can perform (no browser, no Vercel
-      credentials, no ability to sign up for external accounts on the user's behalf)
-- [x] No hardcoded secrets/tokens committed to the repo (keys, if used, only ever go in Vercel's
-      dashboard, never a tracked file)
-- [ ] **MANUAL** Record the live URL in `README.md` — blocked on Outcome 3 (first deploy)
-- [ ] Update `roadmap.md` status for S10.2: staying at `spec-written` — NOT moved to `done`, since
-      FR-2/FR-3/FR-4 (account creation, dashboard config, live deploy, route checks, auto-redeploy)
-      are unimplemented and unverifiable from here. Only FR-1 (this repo's `vercel.json`) is done.
+- [x] All 6 tangible outcomes verified:
+  1. `vercel.json` valid + catch-all rewrite — automated test
+  2. Environment Variables page — deliberately left unset (valid documented choice, FR-2)
+  3. Vercel dashboard shows successful deployment — confirmed (commit `66bc595`, Ready)
+  4. Live URL's 4 routes work directly — confirmed via screenshots
+  5. Push to `main` triggers auto-redeploy — confirmed (commit `7fd9adb`, new deployment 48s later)
+  6. Live URL recorded in `README.md` — done (`https://llm-playground-two.vercel.app`)
+- [x] No hardcoded secrets/tokens committed to the repo — no keys were ever set on the Vercel
+      project, so nothing to leak
+- [x] Live URL recorded in `README.md`: https://llm-playground-two.vercel.app
+- [x] Update `roadmap.md` status for S10.2: `spec-written` → `done`
