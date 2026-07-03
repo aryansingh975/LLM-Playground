@@ -37,7 +37,7 @@ export default function MessageThread({ messages = [], loading = false }) {
           {msg.text}
         </div>
       ))}
-      {loading && (
+      {loading && messages[messages.length - 1]?.role !== 'assistant' && (
         <div
           data-testid="loading-indicator"
           className="mr-auto text-gray-400 italic px-3 py-2"

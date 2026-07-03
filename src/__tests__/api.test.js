@@ -325,3 +325,163 @@ describe('S4.5 — callProvider dispatcher', () => {
     await expect(callProvider('bogus', 'hi')).rejects.toThrow('Unknown provider: bogus')
   })
 })
+
+describe('Multi-turn conversation history', () => {
+  beforeEach(() => {
+    vi.stubEnv('VITE_GROQ_API_KEY', 'test-key')
+    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key')
+    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'test-key')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  const history = [
+    { role: 'user', text: 'hi' },
+    { role: 'assistant', text: 'hello there' },
+    { role: 'user', text: 'what did I just say?' },
+  ]
+
+  it('callGroq_sends_full_history_as_openai_messages', async () => {
+    mockFetchOk()
+    await callGroq(history)
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).messages).toEqual([
+      { role: 'user', content: 'hi' },
+      { role: 'assistant', content: 'hello there' },
+      { role: 'user', content: 'what did I just say?' },
+    ])
+  })
+
+  it('callOpenRouter_sends_full_history_as_openai_messages', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ choices: [{ message: { content: 'reply' } }] }),
+    })
+    await callOpenRouter(history)
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).messages).toEqual([
+      { role: 'user', content: 'hi' },
+      { role: 'assistant', content: 'hello there' },
+      { role: 'user', content: 'what did I just say?' },
+    ])
+  })
+
+  it('callGemini_sends_full_history_mapping_assistant_to_model_role', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ candidates: [{ content: { parts: [{ text: 'reply' }] } }] }),
+    })
+    await callGemini(history)
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).contents).toEqual([
+      { role: 'user', parts: [{ text: 'hi' }] },
+      { role: 'model', parts: [{ text: 'hello there' }] },
+      { role: 'user', parts: [{ text: 'what did I just say?' }] },
+    ])
+  })
+
+  it('a_plain_string_prompt_still_works_as_a_single_user_turn', async () => {
+    mockFetchOk()
+    await callGroq('just one message')
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).messages).toEqual([{ role: 'user', content: 'just one message' }])
+  })
+})
+
+describe('Streaming responses', () => {
+  function mockSSEResponse(sseText) {
+    const bytes = new TextEncoder().encode(sseText)
+    let delivered = false
+    return {
+      ok: true,
+      body: {
+        getReader() {
+          return {
+            read() {
+              if (delivered) return Promise.resolve({ done: true, value: undefined })
+              delivered = true
+              return Promise.resolve({ done: false, value: bytes })
+            },
+          }
+        },
+      },
+    }
+  }
+
+  beforeEach(() => {
+    vi.stubEnv('VITE_GROQ_API_KEY', 'test-key')
+    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key')
+    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'test-key')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('callGroq_streams_chunks_via_onChunk_and_resolves_full_text', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      mockSSEResponse(
+        'data: {"choices":[{"delta":{"content":"Hel"}}]}\n\n' +
+          'data: {"choices":[{"delta":{"content":"lo"}}]}\n\n' +
+          'data: [DONE]\n\n'
+      )
+    )
+    const chunks = []
+    const reply = await callGroq('hi', 1, 1, 1024, (accumulated) => chunks.push(accumulated))
+    expect(chunks).toEqual(['Hel', 'Hello'])
+    expect(reply).toBe('Hello')
+  })
+
+  it('callGroq_requests_stream_true_when_onChunk_provided', async () => {
+    global.fetch = vi.fn().mockResolvedValue(mockSSEResponse('data: [DONE]\n\n'))
+    await callGroq('hi', 1, 1, 1024, () => {})
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).stream).toBe(true)
+  })
+
+  it('callGroq_does_not_request_streaming_without_onChunk', async () => {
+    mockFetchOk()
+    await callGroq('hi')
+    const [, options] = fetch.mock.calls[0]
+    expect(JSON.parse(options.body).stream).toBe(false)
+  })
+
+  it('callOpenRouter_streams_chunks_via_onChunk_and_resolves_full_text', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      mockSSEResponse(
+        'data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n' +
+          'data: {"choices":[{"delta":{"content":" there"}}]}\n\n' +
+          'data: [DONE]\n\n'
+      )
+    )
+    const chunks = []
+    const reply = await callOpenRouter('hi', 1, 1, 1024, (accumulated) => chunks.push(accumulated))
+    expect(chunks).toEqual(['Hi', 'Hi there'])
+    expect(reply).toBe('Hi there')
+  })
+
+  it('callGemini_streams_chunks_mapping_text_parts_and_resolves_full_text', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      mockSSEResponse(
+        'data: {"candidates":[{"content":{"parts":[{"text":"Hel"}]}}]}\n\n' +
+          'data: {"candidates":[{"content":{"parts":[{"text":"lo"}]}}]}\n\n'
+      )
+    )
+    const chunks = []
+    const reply = await callGemini('hi', 1, 1, 1024, (accumulated) => chunks.push(accumulated))
+    expect(chunks).toEqual(['Hel', 'Hello'])
+    expect(reply).toBe('Hello')
+  })
+
+  it('callGemini_requests_the_streaming_endpoint_with_alt_sse_when_onChunk_provided', async () => {
+    global.fetch = vi.fn().mockResolvedValue(mockSSEResponse(''))
+    await callGemini('hi', 1, 1, 1024, () => {})
+    const [url] = fetch.mock.calls[0]
+    expect(url).toContain('streamGenerateContent')
+    expect(url).toContain('alt=sse')
+  })
+})

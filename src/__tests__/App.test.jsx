@@ -9,6 +9,10 @@ vi.mock('../api', () => ({
   callProvider: vi.fn(),
 }))
 
+beforeEach(() => {
+  localStorage.clear()
+})
+
 describe('S1.1 — HTML Skeleton', () => {
   beforeEach(() => {
     render(<App />)
@@ -324,7 +328,16 @@ describe('S4.2 — Temperature Slider', () => {
     fireEvent.change(screen.getByRole('slider', { name: /temperature/i }), { target: { value: '0.4' } })
     await user.type(screen.getByRole('textbox'), 'hello')
     await user.click(screen.getByRole('button', { name: 'Send' }))
-    await waitFor(() => expect(callProvider).toHaveBeenCalledWith('groq', 'hello', 0.4, 1, 1024))
+    await waitFor(() =>
+      expect(callProvider).toHaveBeenCalledWith(
+        'groq',
+        [{ role: 'user', text: 'hello' }],
+        0.4,
+        1,
+        1024,
+        expect.any(Function)
+      )
+    )
   })
 })
 
@@ -348,7 +361,16 @@ describe('S4.3 — Top-p Slider', () => {
     fireEvent.change(screen.getByRole('slider', { name: /top-p/i }), { target: { value: '0.4' } })
     await user.type(screen.getByRole('textbox'), 'hello')
     await user.click(screen.getByRole('button', { name: 'Send' }))
-    await waitFor(() => expect(callProvider).toHaveBeenCalledWith('groq', 'hello', 1, 0.4, 1024))
+    await waitFor(() =>
+      expect(callProvider).toHaveBeenCalledWith(
+        'groq',
+        [{ role: 'user', text: 'hello' }],
+        1,
+        0.4,
+        1024,
+        expect.any(Function)
+      )
+    )
   })
 })
 
@@ -372,7 +394,16 @@ describe('S4.4 — Max Tokens Slider', () => {
     fireEvent.change(screen.getByRole('slider', { name: /max tokens/i }), { target: { value: '256' } })
     await user.type(screen.getByRole('textbox'), 'hello')
     await user.click(screen.getByRole('button', { name: 'Send' }))
-    await waitFor(() => expect(callProvider).toHaveBeenCalledWith('groq', 'hello', 1, 1, 256))
+    await waitFor(() =>
+      expect(callProvider).toHaveBeenCalledWith(
+        'groq',
+        [{ role: 'user', text: 'hello' }],
+        1,
+        1,
+        256,
+        expect.any(Function)
+      )
+    )
   })
 })
 
@@ -396,7 +427,16 @@ describe('S4.5 — Provider Picker', () => {
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'gemini' } })
     await user.type(screen.getByRole('textbox'), 'hello')
     await user.click(screen.getByRole('button', { name: 'Send' }))
-    await waitFor(() => expect(callProvider).toHaveBeenCalledWith('gemini', 'hello', 1, 1, 1024))
+    await waitFor(() =>
+      expect(callProvider).toHaveBeenCalledWith(
+        'gemini',
+        [{ role: 'user', text: 'hello' }],
+        1,
+        1,
+        1024,
+        expect.any(Function)
+      )
+    )
   })
 })
 
@@ -459,5 +499,94 @@ describe('S8.1 — Evaluate Route', () => {
     expect(screen.getByRole('heading', { name: 'Rate Responses' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Benchmarks' })).toBeInTheDocument()
     expect(document.getElementById('prompt-input')).toBeNull()
+  })
+})
+
+describe('Persist chat across reloads', () => {
+  let callProvider
+
+  beforeEach(async () => {
+    window.history.pushState({}, '', '/chat')
+    const api = await import('../api')
+    callProvider = api.callProvider
+    vi.mocked(callProvider).mockReset()
+  })
+
+  it('a conversation survives an unmount/remount (simulated page reload)', async () => {
+    const user = userEvent.setup()
+    vi.mocked(callProvider).mockResolvedValue('AI reply')
+    const { unmount } = render(<App />)
+
+    await user.type(screen.getByRole('textbox'), 'remember this')
+    await user.click(screen.getByRole('button', { name: 'Send' }))
+    await waitFor(() =>
+      expect(document.getElementById('response-area').textContent).toContain('AI reply')
+    )
+
+    unmount()
+    render(<App />)
+
+    const area = document.getElementById('response-area')
+    expect(area.textContent).toContain('remember this')
+    expect(area.textContent).toContain('AI reply')
+  })
+
+  it('starts empty when localStorage has nothing stored', () => {
+    render(<App />)
+    const area = document.getElementById('response-area')
+    expect(area.querySelector('[data-testid="empty-chat-state"]')).not.toBeNull()
+  })
+})
+
+describe('New Chat button', () => {
+  let callProvider
+
+  beforeEach(async () => {
+    window.history.pushState({}, '', '/chat')
+    const api = await import('../api')
+    callProvider = api.callProvider
+    vi.mocked(callProvider).mockReset()
+  })
+
+  it('is disabled when the conversation is empty', () => {
+    render(<App />)
+    expect(screen.getByRole('button', { name: '+ New Chat' })).toBeDisabled()
+  })
+
+  it('clears the conversation and re-shows the empty state', async () => {
+    const user = userEvent.setup()
+    vi.mocked(callProvider).mockResolvedValue('AI reply')
+    render(<App />)
+
+    await user.type(screen.getByRole('textbox'), 'hello')
+    await user.click(screen.getByRole('button', { name: 'Send' }))
+    await waitFor(() =>
+      expect(document.getElementById('response-area').textContent).toContain('AI reply')
+    )
+
+    await user.click(screen.getByRole('button', { name: '+ New Chat' }))
+
+    const area = document.getElementById('response-area')
+    expect(area.querySelector('[data-testid="empty-chat-state"]')).not.toBeNull()
+    expect(area.textContent).not.toContain('hello')
+  })
+
+  it('clearing the conversation also clears the persisted copy', async () => {
+    const user = userEvent.setup()
+    vi.mocked(callProvider).mockResolvedValue('AI reply')
+    const { unmount } = render(<App />)
+
+    await user.type(screen.getByRole('textbox'), 'hello')
+    await user.click(screen.getByRole('button', { name: 'Send' }))
+    await waitFor(() =>
+      expect(document.getElementById('response-area').textContent).toContain('AI reply')
+    )
+    await user.click(screen.getByRole('button', { name: '+ New Chat' }))
+
+    unmount()
+    render(<App />)
+
+    const area = document.getElementById('response-area')
+    expect(area.querySelector('[data-testid="empty-chat-state"]')).not.toBeNull()
   })
 })
