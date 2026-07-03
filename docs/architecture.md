@@ -32,6 +32,7 @@ Because there's no backend, there's nowhere for a server to hold secrets. Keys s
 - **On the deployed instance**: the same `VITE_*` variables, set in Vercel's Environment Variables
   UI. Whatever is configured there becomes readable in the shipped bundle by anyone who opens
   DevTools — this is a known, accepted tradeoff of a server-free architecture, not an oversight.
+  Currently only `VITE_GROQ_API_KEY` is set there; Gemini and OpenRouter are left unconfigured.
 - **Not set**: the app still loads and is fully browsable; sending a message shows a friendly "No
   API key found" message instead of crashing.
 
@@ -41,7 +42,7 @@ The app is a single-page app (`react-router-dom`, no server-side rendering) with
 
 | Route | What it does |
 |-------|--------------|
-| `/chat` | Type a message, send it to the selected provider (Groq / Gemini / OpenRouter), and see the reply appended to the message thread. |
+| `/chat` | Type a message, send it (with the full conversation so far) to the selected provider, and watch the reply stream in live. The conversation persists in `localStorage` across reloads; "+ New Chat" clears it. |
 | `/learn` | Static explainer cards on how LLMs are pre-trained, post-trained, and evaluated, plus the tokeniser demo — no network calls. |
 | `/compare` | Sends the same prompt to two providers at once via `Promise.all` and shows both replies side by side. |
 | `/evaluate` | Star-rate chat responses and view benchmark charts (MMLU / HumanEval / GSM8K) for each free model. |

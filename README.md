@@ -1,17 +1,19 @@
 # LLM Playground
 
-A free, browser-only playground for talking to and learning about large language models. Type a
-message and chat with **Groq**, **Gemini**, or **OpenRouter** (all free tiers, no server, no paid
-APIs), tune generation behavior with temperature / top-p / max-tokens sliders, watch the
-**tokeniser demo** split any text into coloured token chips in real time, **compare** two models
-side by side on the same prompt, **rate** responses with a star widget, and read plain-English
-**Learn** cards on how LLMs are pre-trained, post-trained, evaluated, and how text generation
-actually works. The whole thing runs entirely in your browser — there is no backend server.
+A free, browser-only playground for talking to and learning about large language models. Chat with
+**Groq**, **Gemini**, or **OpenRouter** (all free tiers, no server, no paid APIs) — replies **stream
+in live** as they generate, the model **remembers the conversation** so follow-up questions work, and
+your chat **persists across page reloads** (start a new one anytime with **+ New Chat**). Tune
+generation behavior with temperature / top-p / max-tokens sliders, watch the **tokeniser demo** split
+any text into coloured token chips in real time, **compare** two models side by side on the same
+prompt, **rate** responses with a star widget, and read plain-English **Learn** cards on how LLMs are
+pre-trained, post-trained, evaluated, and how text generation actually works. The whole thing runs
+entirely in your browser — there is no backend server.
 
 **Live demo:** https://llm-playground-two.vercel.app
-*(No API keys are configured on the deployed instance — the UI is fully browsable, but sending a
-chat message will show the existing "No API key found" error. Follow the steps below to run it
-locally with your own free keys and a working AI backend.)*
+*(A Groq key is configured on the deployed instance, so chatting with Groq works out of the box.
+Gemini and OpenRouter aren't configured there — pick Groq from the provider dropdown, or follow the
+steps below to run it locally with your own free keys for all three.)*
 
 ## Screenshots
 
