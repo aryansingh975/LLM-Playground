@@ -27,9 +27,10 @@ function NavBar() {
         type="button"
         onClick={toggleTheme}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        className="ml-auto"
+        className="ml-auto flex items-center gap-1 text-sm"
       >
-        {isDark ? '☀️' : '🌙'}
+        <span aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
+        {isDark ? 'Light mode' : 'Dark mode'}
       </button>
     </nav>
   )

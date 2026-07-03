@@ -33,7 +33,7 @@ function ChatPage() {
   }
 
   return (
-    <main className="flex flex-row h-full overflow-hidden">
+    <main className="flex flex-row h-full overflow-hidden bg-white dark:bg-gray-950">
       <Sidebar>
         <TemperatureSlider value={temperature} onChange={setTemperature} />
         <TopPSlider value={topP} onChange={setTopP} />
@@ -49,7 +49,7 @@ function ChatPage() {
           {error && (
             <div
               role="alert"
-              className="flex items-center gap-2 border border-red-300 bg-red-50 text-red-700 rounded px-3 py-2"
+              className="flex items-center gap-2 border border-red-300 bg-red-50 text-red-700 rounded px-3 py-2 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
             >
               <span aria-hidden="true">⚠️</span>
               <span>{error}</span>
